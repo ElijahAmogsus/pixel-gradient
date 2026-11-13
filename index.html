@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pixelated Gradient Maker</title>
+  <style>
+    body {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      font-family: monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    .controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+    }
+    .colors {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    canvas {
+      border: 3px solid #89b4fa;
+      image-rendering: pixelated;
+      width: 400px;
+      height: 400px;
+    }
+    button {
+      background: #89b4fa;
+      color: #11111b;
+      border: none;
+      padding: 8px 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:disabled {
+      background: #45475a;
+      color: #a6adc8;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <h2>👾 Pixelated Gradient Maker</h2>
+
+  <div class="controls">
+    <button id="addBtn" onclick="addColor()">+ Add Color</button>
+    <button id="remBtn" onclick="removeColor()">- Remove</button>
+    <label>Grid Size: <input type="range" id="size" min="4" max="64" value="16"></label>
+    <button onclick="download()">Download PNG</button>
+  </div>
+
+  <div class="colors" id="colorContainer"></div>
+
+  <canvas id="canvas"></canvas>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const size = document.getElementById('size');
+    const colorContainer = document.getElementById('colorContainer');
+    const addBtn = document.getElementById('addBtn');
+    const remBtn = document.getElementById('remBtn');
+
+    // Default Catppuccin Mocha palette up to 5 colors
+    const defaultPalette = ['#89b4fa', '#f38ba8', '#a6e3a1', '#fab387', '#cba6f7'];
+    let colors = ['#89b4fa', '#f38ba8'];
+
+    function renderInputs() {
+      colorContainer.innerHTML = '';
+      colors.forEach((hex, index) => {
+        const label = document.createElement('label');
+        label.textContent = `C${index + 1}: `;
+        const input = document.createElement('input');
+        input.type = 'color';
+        input.value = hex;
+        input.oninput = (e) => {
+          colors[index] = e.target.value;
+          draw();
+        };
+        label.appendChild(input);
+        colorContainer.appendChild(label);
+      });
+
+      addBtn.disabled = colors.length >= 5;
+      remBtn.disabled = colors.length <= 2;
+    }
+
+    function addColor() {
+      if (colors.length < 5) {
+        colors.push(defaultPalette[colors.length]);
+        renderInputs();
+        draw();
+      }
+    }
+
+    function removeColor() {
+      if (colors.length > 2) {
+        colors.pop();
+        renderInputs();
+        draw();
+      }
+    }
+
+    function draw() {
+      const grid = parseInt(size.value);
+      canvas.width = grid;
+      canvas.height = grid;
+
+      const grad = ctx.createLinearGradient(0, 0, grid, grid);
+      colors.forEach((hex, i) => {
+        grad.addColorStop(i / (colors.length - 1), hex);
+      });
+
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, grid, grid);
+    }
+
+    function download() {
+      const link = document.createElement('a');
+      link.download = 'pixel-gradient.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    }
+
+    size.oninput = draw;
+    renderInputs();
+    draw();
+  </script>
+</body>
+</html>
