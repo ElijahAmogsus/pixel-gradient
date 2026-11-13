@@ -55,8 +55,8 @@
   <div class="controls">
     <button id="addBtn" onclick="addColor()">+ Add Color</button>
     <button id="remBtn" onclick="removeColor()">- Remove</button>
-    <label>Grid Size: <input type="range" id="size" min="4" max="64" value="16"></label>
-    <button onclick="download()">Download PNG</button>
+    <label>Grid Size: <input type="range" id="size" min="4" max="64" value="18"> <span id="sizeLabel">18x18</span></label>
+    <button onclick="download()">Download 1080x1080 PNG</button>
   </div>
 
   <div class="colors" id="colorContainer"></div>
@@ -67,11 +67,11 @@
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     const size = document.getElementById('size');
+    const sizeLabel = document.getElementById('sizeLabel');
     const colorContainer = document.getElementById('colorContainer');
     const addBtn = document.getElementById('addBtn');
     const remBtn = document.getElementById('remBtn');
 
-    // Default Catppuccin Mocha palette up to 5 colors
     const defaultPalette = ['#89b4fa', '#f38ba8', '#a6e3a1', '#fab387', '#cba6f7'];
     let colors = ['#89b4fa', '#f38ba8'];
 
@@ -113,6 +113,7 @@
 
     function draw() {
       const grid = parseInt(size.value);
+      sizeLabel.textContent = `${grid}x${grid}`;
       canvas.width = grid;
       canvas.height = grid;
 
@@ -126,9 +127,18 @@
     }
 
     function download() {
+      const exportCanvas = document.createElement('canvas');
+      exportCanvas.width = 1080;
+      exportCanvas.height = 1080;
+      const exportCtx = exportCanvas.getContext('2d');
+
+      // Keeps pixel edges 100% sharp without blurry smoothing
+      exportCtx.imageSmoothingEnabled = false;
+      exportCtx.drawImage(canvas, 0, 0, 1080, 1080);
+
       const link = document.createElement('a');
-      link.download = 'pixel-gradient.png';
-      link.href = canvas.toDataURL();
+      link.download = `pixel-gradient-${size.value}x${size.value}-1080p.png`;
+      link.href = exportCanvas.toDataURL('image/png');
       link.click();
     }
 
