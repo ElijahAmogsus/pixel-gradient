@@ -2,17 +2,66 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Pixelated Gradient Maker</title>
+  <title>Pixelated Gradient Maker | ElijahAmogsus</title>
   <style>
+    :root {
+      --base: #1e1e2e;
+      --mantle: #181825;
+      --surface0: #313244;
+      --surface1: #45475a;
+      --text: #cdd6f4;
+      --subtext0: #a6adc8;
+      --blue: #89b4fa;
+      --pink: #f38ba8;
+      --crust: #11111b;
+    }
+
+    * {
+      box-sizing: border-box;
+      transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+
     body {
-      background: #1e1e2e;
-      color: #cdd6f4;
+      margin: 0;
+      min-height: 100vh;
+      background-color: var(--base);
+      color: var(--text);
       font-family: monospace;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 20px;
+      padding: 25px 20px;
     }
+
+    .theme-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .theme-btn {
+      background-color: var(--mantle);
+      color: var(--text);
+      border: 2px solid var(--surface1);
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-family: monospace;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .theme-btn:hover, .theme-btn.active {
+      border-color: var(--blue);
+      background-color: var(--surface0);
+    }
+
+    h2 {
+      color: var(--blue);
+      margin-top: 0;
+    }
+
     .controls {
       display: flex;
       gap: 12px;
@@ -21,6 +70,7 @@
       justify-content: center;
       align-items: center;
     }
+
     .colors {
       display: flex;
       gap: 10px;
@@ -28,42 +78,86 @@
       flex-wrap: wrap;
       justify-content: center;
     }
+
     canvas {
-      border: 3px solid #89b4fa;
+      border: 3px solid var(--blue);
       image-rendering: pixelated;
       width: 400px;
       height: 400px;
     }
-    button {
-      background: #89b4fa;
-      color: #11111b;
+
+    .action-btn {
+      background: var(--blue);
+      color: var(--crust);
       border: none;
+      border-radius: 5px;
       padding: 8px 14px;
+      font-family: monospace;
       font-weight: bold;
       cursor: pointer;
     }
-    button:disabled {
-      background: #45475a;
-      color: #a6adc8;
+
+    .action-btn:disabled {
+      background: var(--surface1);
+      color: var(--subtext0);
       cursor: not-allowed;
+    }
+
+    a.back {
+      margin-top: 25px;
+      color: var(--pink);
+      text-decoration: none;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
+  <div class="theme-bar">
+    <button class="theme-btn active" onclick="setTheme('mocha', this)">🌿 Mocha</button>
+    <button class="theme-btn" onclick="setTheme('macchiato', this)">🌺 Macchiato</button>
+    <button class="theme-btn" onclick="setTheme('frappe', this)">🪴 Frappé</button>
+    <button class="theme-btn" onclick="setTheme('latte', this)">🌻 Latte</button>
+  </div>
+
   <h2>👾 Pixelated Gradient Maker</h2>
 
   <div class="controls">
-    <button id="addBtn" onclick="addColor()">+ Add Color</button>
-    <button id="remBtn" onclick="removeColor()">- Remove</button>
+    <button class="action-btn" id="addBtn" onclick="addColor()">+ Add Color</button>
+    <button class="action-btn" id="remBtn" onclick="removeColor()">- Remove</button>
     <label>Grid Size: <input type="range" id="size" min="4" max="64" value="18"> <span id="sizeLabel">18x18</span></label>
-    <button onclick="download()">Download 1080x1080 PNG</button>
+    <button class="action-btn" onclick="download()">Download 1080x1080 PNG</button>
   </div>
 
   <div class="colors" id="colorContainer"></div>
 
   <canvas id="canvas"></canvas>
 
+  <a class="back" href="/">← Back to Dev Hub</a>
+
   <script>
+    const themes = {
+      mocha: { base: '#1e1e2e', mantle: '#181825', surface0: '#313244', surface1: '#45475a', text: '#cdd6f4', subtext0: '#a6adc8', blue: '#89b4fa', pink: '#f38ba8', crust: '#11111b' },
+      macchiato: { base: '#24273a', mantle: '#1e2030', surface0: '#363a4f', surface1: '#494d64', text: '#cad3f5', subtext0: '#a5adcb', blue: '#8aadf4', pink: '#f5bde6', crust: '#181926' },
+      frappe: { base: '#303446', mantle: '#292c3c', surface0: '#414559', surface1: '#51576d', text: '#c6d0f5', subtext0: '#a5adce', blue: '#8caaee', pink: '#f4b8e4', crust: '#232634' },
+      latte: { base: '#eff1f5', mantle: '#e6e9ef', surface0: '#ccd0da', surface1: '#bcc0cc', text: '#4c4f69', subtext0: '#6c6f85', blue: '#1e66f5', pink: '#ea76cb', crust: '#eff1f5' }
+    };
+
+    function setTheme(name, btn) {
+      const palette = themes[name];
+      const root = document.documentElement.style;
+      for (const [key, value] of Object.entries(palette)) {
+        root.setProperty(`--${key}`, value);
+      }
+      document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      localStorage.setItem('catppuccin-theme', name);
+    }
+
+    const saved = localStorage.getItem('catppuccin-theme');
+    if (saved && themes[saved]) {
+      setTheme(saved, document.querySelector(`button[onclick*="${saved}"]`));
+    }
+
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     const size = document.getElementById('size');
@@ -131,8 +225,6 @@
       exportCanvas.width = 1080;
       exportCanvas.height = 1080;
       const exportCtx = exportCanvas.getContext('2d');
-
-      // Keeps pixel edges 100% sharp without blurry smoothing
       exportCtx.imageSmoothingEnabled = false;
       exportCtx.drawImage(canvas, 0, 0, 1080, 1080);
 
