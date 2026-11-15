@@ -8,7 +8,7 @@
     :root {
       --base: #1e1e2e; --mantle: #181825; --surface0: #313244;
       --surface1: #45475a; --text: #cdd6f4; --subtext0: #a6adc8;
-      --blue: #89b4fa; --pink: #f38ba8; --crust: #11111b;
+      --accent: #89b4fa; --crust: #11111b;
     }
 
     * { box-sizing: border-box; transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease; }
@@ -19,16 +19,18 @@
       align-items: center; padding: 25px 16px;
     }
 
-    .theme-bar { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
+    .theme-bar { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; align-items: center; }
 
-    .theme-btn {
+    .theme-btn, .accent-select {
       background-color: var(--mantle); color: var(--text); border: 2px solid var(--surface1);
       border-radius: 6px; padding: 6px 12px; font-family: monospace; font-weight: bold; cursor: pointer;
     }
 
-    .theme-btn:hover, .theme-btn.active { border-color: var(--blue); background-color: var(--surface0); }
+    .theme-btn:hover, .theme-btn.active, .accent-select:hover, .accent-select:focus {
+      border-color: var(--accent); background-color: var(--surface0); outline: none;
+    }
 
-    h2 { color: var(--blue); margin-top: 0; text-align: center; font-size: clamp(1.3rem, 5vw, 1.6rem); }
+    h2 { color: var(--accent); margin-top: 0; text-align: center; font-size: clamp(1.3rem, 5vw, 1.6rem); }
 
     .controls {
       display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;
@@ -38,26 +40,42 @@
     .colors { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
 
     canvas {
-      border: 3px solid var(--blue); image-rendering: pixelated;
+      border: 3px solid var(--accent); image-rendering: pixelated;
       width: min(400px, 88vw); height: min(400px, 88vw);
     }
 
     .action-btn {
-      background: var(--blue); color: var(--crust); border: none; border-radius: 5px;
+      background: var(--accent); color: var(--crust); border: none; border-radius: 5px;
       padding: 8px 14px; font-family: monospace; font-weight: bold; cursor: pointer;
     }
 
     .action-btn:disabled { background: var(--surface1); color: var(--subtext0); cursor: not-allowed; }
 
-    a.back { margin-top: 25px; color: var(--pink); text-decoration: none; font-weight: bold; }
+    a.back { margin-top: 25px; color: var(--accent); text-decoration: none; font-weight: bold; }
   </style>
 </head>
 <body>
   <div class="theme-bar">
-    <button class="theme-btn active" onclick="setTheme('mocha', this)">🌿 Mocha</button>
-    <button class="theme-btn" onclick="setTheme('macchiato', this)">🌺 Macchiato</button>
-    <button class="theme-btn" onclick="setTheme('frappe', this)">🪴 Frappé</button>
-    <button class="theme-btn" onclick="setTheme('latte', this)">🌻 Latte</button>
+    <button class="theme-btn active" onclick="setTheme('mocha')">🌿 Mocha</button>
+    <button class="theme-btn" onclick="setTheme('macchiato')">🌺 Macchiato</button>
+    <button class="theme-btn" onclick="setTheme('frappe')">🪴 Frappé</button>
+    <button class="theme-btn" onclick="setTheme('latte')">🌻 Latte</button>
+    <select id="accentSelect" class="accent-select" onchange="setAccent(this.value)" aria-label="Accent Color">
+      <option value="rosewater">🌸 Rosewater</option>
+      <option value="flamingo">🦩 Flamingo</option>
+      <option value="pink">💖 Pink</option>
+      <option value="mauve">🔮 Mauve</option>
+      <option value="red">🍎 Red</option>
+      <option value="maroon">🍒 Maroon</option>
+      <option value="peach">🍑 Peach</option>
+      <option value="yellow">🍋 Yellow</option>
+      <option value="green">🍏 Green</option>
+      <option value="teal">🌊 Teal</option>
+      <option value="sky">☁️ Sky</option>
+      <option value="sapphire">💎 Sapphire</option>
+      <option value="blue" selected>💙 Blue</option>
+      <option value="lavender">🪻 Lavender</option>
+    </select>
   </div>
 
   <h2>👾 Pixelated Gradient Maker</h2>
@@ -77,22 +95,41 @@
 
   <script>
     const themes = {
-      mocha: { base: '#1e1e2e', mantle: '#181825', surface0: '#313244', surface1: '#45475a', text: '#cdd6f4', subtext0: '#a6adc8', blue: '#89b4fa', pink: '#f38ba8', crust: '#11111b' },
-      macchiato: { base: '#24273a', mantle: '#1e2030', surface0: '#363a4f', surface1: '#494d64', text: '#cad3f5', subtext0: '#a5adcb', blue: '#8aadf4', pink: '#f5bde6', crust: '#181926' },
-      frappe: { base: '#303446', mantle: '#292c3c', surface0: '#414559', surface1: '#51576d', text: '#c6d0f5', subtext0: '#a5adce', blue: '#8caaee', pink: '#f4b8e4', crust: '#232634' },
-      latte: { base: '#eff1f5', mantle: '#e6e9ef', surface0: '#ccd0da', surface1: '#bcc0cc', text: '#4c4f69', subtext0: '#6c6f85', blue: '#1e66f5', pink: '#ea76cb', crust: '#eff1f5' }
+      mocha: {
+        base: '#1e1e2e', mantle: '#181825', surface0: '#313244', surface1: '#45475a', text: '#cdd6f4', subtext0: '#a6adc8', crust: '#11111b',
+        accents: { rosewater: '#f5e0dc', flamingo: '#f2cdcd', pink: '#f5c2e7', mauve: '#cba6f7', red: '#f38ba8', maroon: '#eba0ac', peach: '#fab387', yellow: '#f9e2af', green: '#a6e3a1', teal: '#94e2d5', sky: '#89dceb', sapphire: '#74c7ec', blue: '#89b4fa', lavender: '#b4befe' }
+      },
+      macchiato: {
+        base: '#24273a', mantle: '#1e2030', surface0: '#363a4f', surface1: '#494d64', text: '#cad3f5', subtext0: '#a5adcb', crust: '#181926',
+        accents: { rosewater: '#f4dbd6', flamingo: '#f0c6c6', pink: '#f5bde6', mauve: '#c6a0f6', red: '#ed8796', maroon: '#ee99a0', peach: '#f5a97f', yellow: '#eed49f', green: '#a6da95', teal: '#8bd5ca', sky: '#91d7e3', sapphire: '#7dc4e4', blue: '#8aadf4', lavender: '#b7bdf8' }
+      },
+      frappe: {
+        base: '#303446', mantle: '#292c3c', surface0: '#414559', surface1: '#51576d', text: '#c6d0f5', subtext0: '#a5adce', crust: '#232634',
+        accents: { rosewater: '#f2d5cf', flamingo: '#eebebe', pink: '#f4b8e4', mauve: '#ca9ee6', red: '#e78284', maroon: '#ea999c', peach: '#ef9f76', yellow: '#e5c890', green: '#a6d189', teal: '#81c8be', sky: '#99d1db', sapphire: '#85c1dc', blue: '#8caaee', lavender: '#babbf1' }
+      },
+      latte: {
+        base: '#eff1f5', mantle: '#e6e9ef', surface0: '#ccd0da', surface1: '#bcc0cc', text: '#4c4f69', subtext0: '#6c6f85', crust: '#eff1f5',
+        accents: { rosewater: '#dc8a78', flamingo: '#dd7878', pink: '#ea76cb', mauve: '#8839ef', red: '#d20f39', maroon: '#e64553', peach: '#fe640b', yellow: '#df8e1d', green: '#40a02b', teal: '#179299', sky: '#04a5e5', sapphire: '#209fb5', blue: '#1e66f5', lavender: '#7287fd' }
+      }
     };
 
-    function setTheme(name, btn) {
-      const palette = themes[name];
-      for (const [key, value] of Object.entries(palette)) document.documentElement.style.setProperty(`--${key}`, value);
-      document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
-      if (btn) btn.classList.add('active');
-      localStorage.setItem('catppuccin-theme', name);
+    let currentTheme = localStorage.getItem('catppuccin-theme') || 'mocha';
+    let currentAccent = localStorage.getItem('catppuccin-accent') || 'blue';
+
+    function applyPalette() {
+      const p = themes[currentTheme] || themes.mocha;
+      const root = document.documentElement.style;
+      for (const [k, v] of Object.entries(p)) {
+        if (k !== 'accents') root.setProperty(`--${k}`, v);
+      }
+      root.setProperty('--accent', p.accents[currentAccent] || p.accents.blue);
+      document.querySelectorAll('.theme-btn').forEach(b => b.classList.toggle('active', b.getAttribute('onclick').includes(`'${currentTheme}'`)));
+      document.getElementById('accentSelect').value = currentAccent;
     }
 
-    const saved = localStorage.getItem('catppuccin-theme');
-    if (saved && themes[saved]) setTheme(saved, document.querySelector(`button[onclick*="${saved}"]`));
+    function setTheme(name) { currentTheme = name; localStorage.setItem('catppuccin-theme', name); applyPalette(); }
+    function setAccent(accent) { currentAccent = accent; localStorage.setItem('catppuccin-accent', accent); applyPalette(); }
+    applyPalette();
 
     const canvas = document.getElementById('canvas'), ctx = canvas.getContext('2d');
     const size = document.getElementById('size'), sizeLabel = document.getElementById('sizeLabel');
